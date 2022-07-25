@@ -1,11 +1,14 @@
-import logging 
+import logging
+import time 
+import requests
 
-from shop_parser import ShopParser
-from item import Item 
+from bs4 import BeautifulSoup as bs
+from typing import List
+from .shop_parser import ShopParser
+from .item import Item 
 
-logging.basicConfig(level=logging.DEBUG)
+
 logger = logging.getLogger("wb")
-
 
 
 class AliexpressParser(ShopParser):
@@ -14,16 +17,34 @@ class AliexpressParser(ShopParser):
         ShopParser.__init__(self, "www.wildberries.ru")
 
 
+    def load_page(
+        self,
+        url: str, # Shop url
+        page: int = None, # Shop page
+        ):
+        result = self.driver.get(url=url)
+        time.sleep(5)
+        html = self.driver.page_source
+        soup = bs(html, "html.parser")
+        return soup
+
+
     def parse_page(
         self,
         url: str,
+        count: int,
         ):
         soup = self.load_page(url)
         container = soup.find_all("div", attrs=
-        {'class': 'product-snippet_ProductSnippet__container__tusfnx product-snippet_ProductSnippet__vertical__tusfnx product-snippet_ProductSnippet__imageSizeM__tusfnx product-snippet_ProductSnippet__hasGallery__tusfnx product-snippet_ProductSnippet__hideOptions__tusfnx product-snippet_ProductSnippet__hideCashback__tusfnx product-snippet_ProductSnippet__hideSubsidy__tusfnx product-snippet_ProductSnippet__hideAd__tusfnx product-snippet_ProductSnippet__hideActions__tusfnx product-snippet_ProductSnippet__hideSponsored__tusfnx product-snippet_ProductSnippet__hideGroupLink__tusfnx'})
+        {'class': 'product-snippet_ProductSnippet__container__tusfnx product-snippet_ProductSnippet__horizontal__tusfnx product-snippet_ProductSnippet__imageSizeS__tusfnx product-snippet_ProductSnippet__hasGallery__tusfnx product-snippet_ProductSnippet__hideOptions__tusfnx product-snippet_ProductSnippet__hideCashback__tusfnx product-snippet_ProductSnippet__hideSubsidy__tusfnx product-snippet_ProductSnippet__hideAd__tusfnx product-snippet_ProductSnippet__hideActions__tusfnx product-snippet_ProductSnippet__hideSponsored__tusfnx product-snippet_ProductSnippet__hideGroupLink__tusfnx'})
         result = []
         for block in container:
-            result.append(self.parse_block(block=block))
+            if len(result) == count:
+                break
+            item = self.parse_block(block=block)
+            if item.brand_name is None:
+                continue
+            result.append(item)
         return result
 
     
@@ -88,20 +109,10 @@ class AliexpressParser(ShopParser):
             url=url,
             image=image,
         )
-
-
-    def run(
-        self,
-        url: str,
-        ):
-        result = self.parse_page(url)
-        return result
         
 
-
-if __name__ == '__main__':
-    parser_shop = AliexpressParser()
-
-    parser_shop.run(
-        "https://aliexpress.ru/wholesale?catId=&SearchText=xiaomi%20mi%20band%207")
-
+if __name__ == "__main__":
+    shop = AliexpressParser()
+    URL_ALIEXPRESS="https://aliexpress.ru/wholesale?SearchText={product}&g=undefined&page={page}"
+    result = shop.run(URL_ALIEXPRESS, "xiaomi")
+    print(result)

@@ -1,9 +1,10 @@
-import requests
-from bs4 import BeautifulSoup as bs
+from abc import abstractmethod
+from typing import List
+
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webdriver_manager.chrome import ChromeDriverManager
-import time
+
 
 class ShopParser:
 
@@ -17,16 +18,39 @@ class ShopParser:
         options.add_argument('headless')
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
 
-
+    @abstractmethod
     def load_page(
         self,
         url: str, # Shop url
         page: int = None, # Shop page
         ):
-        result = self.driver.get(url=url)
-        time.sleep(5)
-        html = self.driver.page_source
-        soup = bs(html, "html.parser")
-        return soup
+        pass
    
-        
+
+    @abstractmethod
+    def parse_page(
+        self,
+        url: str,
+        count: int,
+        ):
+        pass 
+
+
+    @abstractmethod
+    def parse_block(
+        self,
+        block,
+        ):
+        pass 
+
+
+    def run(
+        self,
+        start_url: str,
+        product: str,
+        page: int=1,
+        count: int=10,
+        ) -> List:
+        url = start_url.format(product=product, page=page)
+        result = self.parse_page(url, count)
+        return result

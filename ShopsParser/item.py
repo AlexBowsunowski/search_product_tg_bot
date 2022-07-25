@@ -1,4 +1,3 @@
-from PIL import Image 
 
 class Item:
 
@@ -8,7 +7,7 @@ class Item:
         goods_name: str,
         price: float,
         url: str,
-        image: Image,
+        image: str,
         ):
         self.brand_name = brand_name
         self.goods_name = goods_name
@@ -16,3 +15,9 @@ class Item:
         self.url = url 
         self.image = image 
     
+    def __str__(self,):
+        return f"Product:\n"\
+               f"brand_name: {self.brand_name}\n"\
+               f"goods_name: {self.goods_name}\n"\
+               f"price: {self.price}\n"\
+               f"url: {self.url}\n"

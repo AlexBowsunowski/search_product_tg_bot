@@ -1,9 +1,12 @@
 import logging 
+import time 
+import requests
 
-from shop_parser import ShopParser
-from item import Item 
+from bs4 import BeautifulSoup as bs
+from .shop_parser import ShopParser
+from .item import Item 
 
-logging.basicConfig(level=logging.DEBUG)
+
 logger = logging.getLogger("wb")
 
 
@@ -13,16 +16,34 @@ class WildberriesParser(ShopParser):
     def __init__(self):
         ShopParser.__init__(self, "www.wildberries.ru")
 
+    
+    def load_page(
+        self,
+        url: str, # Shop url
+        page: int = None, # Shop page
+        ):
+        result = self.driver.get(url=url)
+        time.sleep(5)
+        html = self.driver.page_source
+        soup = bs(html, "html.parser")
+        return soup
+
 
     def parse_page(
         self,
         url: str,
+        count: int,
         ):
         soup = self.load_page(url)
         container = soup.find_all("div", attrs={'class': 'product-card j-card-item j-good-for-listing-event'})
         result = []
         for block in container:
-            result.append(self.parse_block(block=block))
+            if len(result) == count:
+                break
+            item = self.parse_block(block=block)
+            if item.brand_name is None:
+                continue
+            result.append(item)
         return result
 
     
@@ -81,19 +102,3 @@ class WildberriesParser(ShopParser):
             url=url,
             image=image,
         )
-
-
-    def run(
-        self,
-        url: str,
-        ):
-        result = self.parse_page(url)
-        
-
-
-if __name__ == '__main__':
-    parser_shop = WildberriesParser()
-
-    parser_shop.run(
-        "https://www.wildberries.ru/catalog/elektronika/muzyka-i-video")
-
