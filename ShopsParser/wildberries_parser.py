@@ -1,15 +1,12 @@
 import logging 
 import time 
-import requests
 
 from bs4 import BeautifulSoup as bs
 from .shop_parser import ShopParser
 from .item import Item 
-
-
-logger = logging.getLogger("wb")
-
-
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from webdriver_manager.chrome import ChromeDriverManager
 
 class WildberriesParser(ShopParser):
 
@@ -22,9 +19,13 @@ class WildberriesParser(ShopParser):
         url: str, # Shop url
         page: int = None, # Shop page
         ):
-        result = self.driver.get(url=url)
+        ua = dict(DesiredCapabilities.CHROME)
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+        driver.get(url=url)
         time.sleep(5)
-        html = self.driver.page_source
+        html = driver.page_source
         soup = bs(html, "html.parser")
         return soup
 

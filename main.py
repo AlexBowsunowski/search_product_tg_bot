@@ -201,6 +201,7 @@ def get_products(
     total = 0
     result = []
     while count_product != total: #TODO: Учесть момент, когда количество товаров может меньше запрошенного пользователем(Вывести меньше просто)
+        print(f"url:{url}\npage:{page}\ntotal:{total}")
         products = parser_shop.run(url, name_product, page=page, count=count_product - total)
         total += len(products)
         result.extend(products)

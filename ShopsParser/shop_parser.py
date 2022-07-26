@@ -1,10 +1,6 @@
 from abc import abstractmethod
 from typing import List
 
-from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from webdriver_manager.chrome import ChromeDriverManager
-
 
 class ShopParser:
 
@@ -13,10 +9,7 @@ class ShopParser:
         shop_name: str, # Name of shop
         ):
         self.shop_name = shop_name
-        ua = dict(DesiredCapabilities.CHROME)
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        self.driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+        
 
     @abstractmethod
     def load_page(
