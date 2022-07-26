@@ -19,8 +19,7 @@ class AliexpressParser(ShopParser):
     def load_page(
         self,
         url: str, # Shop url
-        page: int = None, # Shop page
-        ):
+        ) -> bs:
         ua = dict(DesiredCapabilities.CHROME)
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
@@ -101,6 +100,7 @@ class AliexpressParser(ShopParser):
 
         
         return Item(
+            shop_name=self.shop_name,
             brand_name=brand_name,
             goods_name=goods_name,
             price=price,

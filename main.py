@@ -31,7 +31,7 @@ def send_keyboard(
 def settings_keyboard(
     message,
     text="Вы вошли в настройки по поиску товара"):
-    keyboard = types.ReplyKeyboardMarkup(row_width=3)
+    keyboard = types.ReplyKeyboardMarkup(row_width=4)
     one_shop_button = types.KeyboardButton(cfg.SETTING_ONE_SHOP_BUTTON)
     all_shop_button = types.KeyboardButton(cfg.SETTING_ALL_SHOP_BUTTON)
     look_settings_button = types.KeyboardButton(cfg.SETTING_LOOK_BUTTON)
@@ -74,6 +74,9 @@ def settings_callback(message):
             message.chat.id,
             text="Выходим из настроек"
         )
+        send_keyboard(
+            message=message,
+            text="Команды бота:")
 
 
 def set_settings(message, type_of_set):
@@ -117,13 +120,16 @@ def get_settings(message):
 
 @bot.message_handler(commands=['search'])
 def search_keyboard(message, text="Привет, чем я могу тебе помочь?"):
-    keyboard = types.ReplyKeyboardMarkup(row_width=3)
+    keyboard = types.ReplyKeyboardMarkup(row_width=4)
     wildberries_button = types.KeyboardButton(cfg.WILDBERRIES_BUTTON)
     aliexpress_button = types.KeyboardButton(cfg.ALIEXPRESS_BUTTON)
     allshop_button = types.KeyboardButton(cfg.ALLSHOP_BUTTON)
+    exit_button = types.KeyboardButton(cfg.SEARCH_EXIT_BUTTON)
+
     keyboard.add(wildberries_button)
     keyboard.add(aliexpress_button)
     keyboard.add(allshop_button)
+    keyboard.add(exit_button)
 
     message = bot.send_message(
         message.chat.id,
@@ -162,18 +168,23 @@ def callback(message):
             message,
             search,
             cfg.ALLSHOP_BUTTON)
+    elif message.text == cfg.SEARCH_EXIT_BUTTON:
+        message = bot.send_message(
+            message.chat.id,
+            text="Выходим из поиска"
+        )
+        send_keyboard(
+            message=message,
+            text="Команды бота:")
 
-#TODO: Попробовать отчистить по максимуму от if else
+
 def search(message, shop):
     results = []
     bot.send_message(
         chat_id=message.chat.id,
         text="Ищу...",
     )
-    if shop == cfg.ALLSHOP_BUTTON:
-        count = count_parsing(message, True)
-    else:
-        count = count_parsing(message)
+    count = count_parsing(message, shop == cfg.ALLSHOP_BUTTON)
     product = message.text.strip().replace(" ", "%20")
     if shop == cfg.WILDBERRIES_BUTTON or shop == cfg.ALLSHOP_BUTTON:
         parser_shop = WildberriesParser()
@@ -200,9 +211,10 @@ def get_products(
     page = 1
     total = 0
     result = []
-    while count_product != total: #TODO: Учесть момент, когда количество товаров может меньше запрошенного пользователем(Вывести меньше просто)
-        print(f"url:{url}\npage:{page}\ntotal:{total}")
+    while count_product != total:
         products = parser_shop.run(url, name_product, page=page, count=count_product - total)
+        if len(products) == 0:
+            break
         total += len(products)
         result.extend(products)
         page += 1
@@ -225,16 +237,9 @@ def send_products(message, products):
 def count_parsing(message, all_shop=False) -> int:
     count = 0
     try:
-        if all_shop:
-            count = user.get_count_all_shop(message)
-        else:
-            count = user.get_count_one_shop(message)
+        count = user.get_count_all_shop(message) if all_shop else user.get_count_one_shop(message)
     except e.CountNotExists:
-        if all_shop:
-            count = cfg.COUNT_SEARCH_ALL_SHOP
-        else:
-            count = cfg.COUNT_SEARCH_ONE_SHOP
-    
+        count = cfg.COUNT_SEARCH_ALL_SHOP if all_shop else cfg.COUNT_SEARCH_ONE_SHOP
     return count
 
 if __name__ == "__main__":

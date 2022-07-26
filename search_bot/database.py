@@ -6,12 +6,20 @@ from search_bot import config as cfg
 from search_bot import exception as e
 
 class User:
+    """ 
+    Класс User для работе с базой данных, которая содержит информацию
+    о userid, число продуктов, которые надо выдать пользователю при поиске в случае
+    если идет поиск по одному магазину или идет поиск по всем магазинам
+    """
     def __init__(self, db_name: str = cfg.DB_NAME) -> None:
         self.db_name = db_name 
         self._create_table()
         
     
-    def _create_table(self):
+    def _create_table(self) -> None:
+        """ 
+        Создаем таблицу с названием self.db_name, если до этого не была создана
+        """
         with sqlite3.connect(self.db_name) as conn:
             query = """
                 CREATE TABLE IF NOT EXISTS user(
@@ -23,7 +31,10 @@ class User:
             conn.execute(query)
     
 
-    def set_count_one_shop(self, message):
+    def set_count_one_shop(self, message) -> None:
+        """ 
+        Устанавливаем число товаров на один магазин
+        """
         count = int(message.text)
         with sqlite3.connect(self.db_name) as conn:
             
@@ -44,7 +55,10 @@ class User:
                 )
 
     
-    def set_count_all_shop(self, message):
+    def set_count_all_shop(self, message) -> None:
+        """ 
+        Устанавливаем число товаров на все магазины
+        """
         count = int(message.text)
         with sqlite3.connect(self.db_name) as conn:
             
@@ -65,7 +79,10 @@ class User:
                 )
 
         
-    def get_count_one_shop(self, message):
+    def get_count_one_shop(self, message) -> int:
+        """ 
+        Выдаем число товаров на один магазин
+        """
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute(
@@ -80,7 +97,10 @@ class User:
             return count[0]
     
 
-    def get_count_all_shop(self, message):
+    def get_count_all_shop(self, message) -> int:
+        """ 
+        Устанавливаем число товаром на один магазин
+        """
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute(
@@ -95,7 +115,10 @@ class User:
             return count[0]
 
     
-    def _exist_user_count(self, message):
+    def _exist_user_count(self, message) -> bool:
+        """ 
+        Проверяем наличие пользователя в базе данных
+        """
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute(
