@@ -41,7 +41,7 @@ class WildberriesParser(ShopParser):
             if len(result) == count:
                 break
             item = self.parse_block(block=block)
-            if item.brand_name is None:
+            if item is None or item.brand_name is None:
                 continue
             result.append(item)
         return result
