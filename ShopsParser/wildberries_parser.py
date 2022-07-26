@@ -3,7 +3,8 @@ import time
 
 from bs4 import BeautifulSoup as bs
 from .shop_parser import ShopParser
-from .item import Item 
+from .item import Item
+from . import config as cfg
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webdriver_manager.chrome import ChromeDriverManager
@@ -20,10 +21,10 @@ class WildberriesParser(ShopParser):
         ):
         ua = dict(DesiredCapabilities.CHROME)
         options = webdriver.ChromeOptions()
-        options.add_argument('headless')
+        options.add_argument('--headless')
         driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
         driver.get(url=url)
-        time.sleep(5)
+        time.sleep(1)
         html = driver.page_source
         soup = bs(html, "html.parser")
         return soup
@@ -35,13 +36,13 @@ class WildberriesParser(ShopParser):
         count: int,
         ):
         soup = self.load_page(url)
-        container = soup.find_all("div", attrs={'class': 'product-card j-card-item j-good-for-listing-event'})
+        container = soup.find_all("div", attrs={'class': cfg.WILD_NAME_BLOCK})
         result = []
         for block in container:
             if len(result) == count:
                 break
             item = self.parse_block(block=block)
-            if item is None or item.brand_name is None:
+            if item is None:
                 continue
             result.append(item)
         return result
@@ -53,7 +54,7 @@ class WildberriesParser(ShopParser):
         ):
         
 
-        url_block = block.find('a', class_='product-card__main j-card-link')
+        url_block = block.find('a', class_=cfg.WILD_NAME_URL)
         if not url_block:
             return
         
@@ -61,19 +62,19 @@ class WildberriesParser(ShopParser):
         if not url:
             return 
 
-        brand_name_block = block.find('strong', class_='brand-name')
+        brand_name_block = block.find('strong', class_=cfg.WILD_NAME_BRAND)
         if not brand_name_block:
             return 
         
         brand_name = brand_name_block.text.replace('/', '').strip()
 
-        goods_name_block = block.find('span', class_='goods-name')
+        goods_name_block = block.find('span', class_=cfg.WILD_NAME_GOODS)
         if not goods_name_block:
             return 
         
         goods_name = goods_name_block.text.strip()
 
-        price_block = block.find('ins', class_="lower-price")
+        price_block = block.find('ins', class_=cfg.WILD_NAME_PRICE)
         if not price_block:
             return 
         price = float(price_block.text
@@ -81,7 +82,7 @@ class WildberriesParser(ShopParser):
             .replace("\xa0","")
             .replace("₽",""))
 
-        image_block = block.find("img", class_="j-thumbnail thumbnail")
+        image_block = block.find("img", class_=cfg.WILD_NAME_IMAGE)
         if not image_block:
             return 
         image = "https:" + image_block.attrs.get("src")

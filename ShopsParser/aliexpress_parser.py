@@ -3,6 +3,7 @@ import time
 from bs4 import BeautifulSoup as bs
 from .shop_parser import ShopParser
 from .item import Item 
+from . import config as cfg
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webdriver_manager.chrome import ChromeDriverManager
@@ -23,7 +24,7 @@ class AliexpressParser(ShopParser):
         options.add_argument('headless')
         driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
         driver.get(url=url)
-        time.sleep(5)
+        time.sleep(1)
         html = driver.page_source
         soup = bs(html, "html.parser")
         return soup
@@ -36,17 +37,17 @@ class AliexpressParser(ShopParser):
         ):
         soup = self.load_page(url)
         container = soup.find_all("div", attrs=
-        {'class': 'product-snippet_ProductSnippet__container__tusfnx product-snippet_ProductSnippet__horizontal__tusfnx product-snippet_ProductSnippet__imageSizeS__tusfnx product-snippet_ProductSnippet__hasGallery__tusfnx product-snippet_ProductSnippet__hideOptions__tusfnx product-snippet_ProductSnippet__hideCashback__tusfnx product-snippet_ProductSnippet__hideSubsidy__tusfnx product-snippet_ProductSnippet__hideAd__tusfnx product-snippet_ProductSnippet__hideActions__tusfnx product-snippet_ProductSnippet__hideSponsored__tusfnx product-snippet_ProductSnippet__hideGroupLink__tusfnx'})
+        {'class': cfg.ALI_NAME_BLOCK1})
         if len(container) == 0:
             container = soup.find_all("div", attrs=
-                {'class': 'product-snippet_ProductSnippet__container__tusfnx product-snippet_ProductSnippet__vertical__tusfnx product-snippet_ProductSnippet__imageSizeM__tusfnx product-snippet_ProductSnippet__hasGallery__tusfnx product-snippet_ProductSnippet__hideOptions__tusfnx product-snippet_ProductSnippet__hideCashback__tusfnx product-snippet_ProductSnippet__hideSubsidy__tusfnx product-snippet_ProductSnippet__hideAd__tusfnx product-snippet_ProductSnippet__hideActions__tusfnx product-snippet_ProductSnippet__hideSponsored__tusfnx product-snippet_ProductSnippet__hideGroupLink__tusfnx'})
+                {'class': cfg.ALI_NAME_BLOCK2})
             
         result = []
         for block in container:
             if len(result) == count:
                 break
             item = self.parse_block(block=block)
-            if item is None or item.brand_name is None:
+            if item is None:
                 continue
             result.append(item)
         return result
@@ -58,7 +59,7 @@ class AliexpressParser(ShopParser):
         ):
         
 
-        url_block = block.find('a', class_='product-snippet_ProductSnippet__galleryBlock__tusfnx')
+        url_block = block.find('a', class_=cfg.ALI_NAME_URL)
         if not url_block:
             return
         
@@ -67,19 +68,19 @@ class AliexpressParser(ShopParser):
             return 
         url = "https://aliexpress.ru" + url 
 
-        brand_name_block = block.find('div', class_='product-snippet_ProductSnippet__caption__tusfnx')
+        brand_name_block = block.find('div', class_=cfg.ALI_NAME_BRAND)
         if not brand_name_block:
             return 
         
         brand_name = brand_name_block.text.strip()
 
-        goods_name_block = block.find('div', class_='product-snippet_ProductSnippet__name__tusfnx')
+        goods_name_block = block.find('div', class_=cfg.ALI_NAME_GOODS)
         if not goods_name_block:
             return 
         
         goods_name = goods_name_block.text.strip()
 
-        price_block = block.find('div', class_="snow-price_SnowPrice__mainM__1ehyuw")
+        price_block = block.find('div', class_=cfg.ALI_NAME_PRICE)
         if not price_block:
             return 
         price = float(price_block.text
@@ -88,7 +89,7 @@ class AliexpressParser(ShopParser):
             .replace(" руб.","")
             .replace(",",""))
 
-        image_block = block.find("img", class_="gallery_Gallery__image__1ln22f")
+        image_block = block.find("img", class_=cfg.ALI_NAME_IMAGE)
         if not image_block:
             return 
         image = image_block.attrs.get("src")
