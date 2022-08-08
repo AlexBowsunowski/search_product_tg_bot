@@ -1,3 +1,8 @@
+# Ссылки шаблоны по каждому магазину, которые необходимо отформатировать
+# при парсинге вставив в ссылку название товара и номер страницы
+URL_WILDBERRIES = "https://www.wildberries.ru/catalog/0/search.aspx?page={page}&sort=popular&search={product}"
+URL_ALIEXPRESS = "https://aliexpress.ru/wholesale?SearchText={product}&g=undefined&page={page}"
+
 # Container Wildberries
 WILD_NAME_BLOCK = 'product-card j-card-item j-good-for-listing-event'
 WILD_NAME_URL = 'product-card__main j-card-link'
@@ -14,4 +19,3 @@ ALI_NAME_BRAND = 'product-snippet_ProductSnippet__caption__tusfnx'
 ALI_NAME_GOODS = 'product-snippet_ProductSnippet__name__tusfnx'
 ALI_NAME_PRICE = 'snow-price_SnowPrice__mainM__1ehyuw'
 ALI_NAME_IMAGE = 'gallery_Gallery__image__1ln22f'
- 

@@ -1,9 +1,6 @@
 import os
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
-#Ссылки шаблоны по каждому магазину, которые необходимо отформатировать при парсинге вставив в ссылку название товара и номер страницы
-URL_WILDBERRIES = "https://www.wildberries.ru/catalog/0/search.aspx?page={page}&sort=popular&search={product}"
-URL_ALIEXPRESS = "https://aliexpress.ru/wholesale?SearchText={product}&g=undefined&page={page}"
 #Число товаров которые будет выводить бот по умолчанию 
 COUNT_SEARCH_ONE_SHOP = 5
 COUNT_SEARCH_ALL_SHOP = 2
